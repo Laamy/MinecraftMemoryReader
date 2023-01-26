@@ -18,7 +18,10 @@ namespace TestApp
 
                 string memorydllPtr = "04973070,0,20,0";
 
-                long addr = MMR.GetMultiLevelPtr(MMR.GetOffset(memorydllPtr), MMR.GetSubOffsets(memorydllPtr));
+                long addr = MMR.GetMultiLevelPtr(MMR.GetOffset(memorydllPtr), MMR.GetSubOffsets(memorydllPtr)); // V
+
+                if (false == true)
+                    addr = MMR.GetMultiLevelPtr(0x04973070, new long[] { 0x0, 0x20 }); // these do the same thing ^
 
                 Console.WriteLine(addr.ToString("X"));
                 Console.WriteLine(MMR.ReadMemory_str(addr, false)); // should print ur DID (STRING) on 1.19.51.01
