@@ -1,0 +1,41 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33122.133
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MinecraftMemoryReader", "MinecraftMemoryReader\MinecraftMemoryReader.csproj", "{3236D515-E645-4227-A54B-264FFEAF3D6B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestApp", "TestApp\TestApp.csproj", "{111AF363-274D-45E1-98E2-92BA88E3C53F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|x64 = Debug|x64
+		Release|Any CPU = Release|Any CPU
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3236D515-E645-4227-A54B-264FFEAF3D6B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3236D515-E645-4227-A54B-264FFEAF3D6B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3236D515-E645-4227-A54B-264FFEAF3D6B}.Debug|x64.ActiveCfg = Debug|x64
+		{3236D515-E645-4227-A54B-264FFEAF3D6B}.Debug|x64.Build.0 = Debug|x64
+		{3236D515-E645-4227-A54B-264FFEAF3D6B}.Release|Any CPU.ActiveCfg = Release|x64
+		{3236D515-E645-4227-A54B-264FFEAF3D6B}.Release|Any CPU.Build.0 = Release|x64
+		{3236D515-E645-4227-A54B-264FFEAF3D6B}.Release|x64.ActiveCfg = Release|x64
+		{3236D515-E645-4227-A54B-264FFEAF3D6B}.Release|x64.Build.0 = Release|x64
+		{111AF363-274D-45E1-98E2-92BA88E3C53F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{111AF363-274D-45E1-98E2-92BA88E3C53F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{111AF363-274D-45E1-98E2-92BA88E3C53F}.Debug|x64.ActiveCfg = Debug|x64
+		{111AF363-274D-45E1-98E2-92BA88E3C53F}.Debug|x64.Build.0 = Debug|x64
+		{111AF363-274D-45E1-98E2-92BA88E3C53F}.Release|Any CPU.ActiveCfg = Release|x64
+		{111AF363-274D-45E1-98E2-92BA88E3C53F}.Release|Any CPU.Build.0 = Release|x64
+		{111AF363-274D-45E1-98E2-92BA88E3C53F}.Release|x64.ActiveCfg = Release|x64
+		{111AF363-274D-45E1-98E2-92BA88E3C53F}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {20722977-4C5D-4062-A0B7-5F9B2D4603D3}
+	EndGlobalSection
+EndGlobal
