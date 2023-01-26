@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 
@@ -39,7 +42,7 @@ namespace MinecraftMemoryReader
             if (GetBinaryType(proc.MainModule.FileName, out bt))
                 return bt;
 
-            return BinaryType.UNKNOWN; // impossible
+            return BinaryType.UNKNOWN;
         }
 
         public static string GetArchitectureStr()
@@ -216,10 +219,39 @@ namespace MinecraftMemoryReader
             return curAddr;
         }
 
+        /// <summary>
+        /// Get the offset of a memory.dll string
+        /// </summary>
+        public static long GetOffset(string value) => Convert.ToInt64(value.Split(',')[0], 16);
+
+        /// <summary>
+        /// Get the sub offsets of a memory.dll string
+        /// </summary>
+        public static long[] GetSubOffsets(string value)
+        {
+            string[] offsets = value.Split(',');
+
+            List<long> subOffsets = new List<long>();
+
+            int index = 0;
+            foreach (string str in offsets)
+            {
+                if (index != 0 && index != offsets.Length - 1)
+                {
+                    subOffsets.Add(Convert.ToInt64(str, 16));
+                }
+
+                index++;
+            }
+
+            return subOffsets.ToArray();
+        }
+
         #region DllImport
 
         [DllImport("kernel32.dll")]
         static extern bool ReadProcessMemory(IntPtr hProcess, long lpBaseAddress, [Out] IntPtr lpBuffer, int dwSize, out IntPtr lpNumberOfBytesRead);
+
         [DllImport("kernel32.dll")]
         static extern bool GetBinaryType(string lpApplicationName, out BinaryType lpBinaryType);
 
