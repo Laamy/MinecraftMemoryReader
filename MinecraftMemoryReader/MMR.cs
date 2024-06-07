@@ -1,10 +1,11 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 
 namespace MinecraftMemoryReader
 {
@@ -247,10 +248,123 @@ namespace MinecraftMemoryReader
             return subOffsets.ToArray();
         }
 
+        /// <summary>
+        /// Scans for writable memory in the main model/base model of the process.
+        /// Process split into 4 functions; ParseSignature, IsMatch, FindSignatureInChunk, FindSignature
+        /// </summary>
+        /// <param name="signature">The signature to search for.</param>
+        /// <returns>The memory address where the signature was found.</returns>
+        public static long SigScan(string signature, ProcessModule[] modules)
+        {
+            if (proc == null)
+            {
+                throw new InvalidOperationException("Process not set.");
+            }
+
+            // Helper function to parse the signature string
+            byte[] ParseSignature(string sig)
+            {
+                string[] parts = sig.Split(' ');
+                byte[] bytes = new byte[parts.Length];
+                for (int i = 0; i < parts.Length; i++)
+                {
+                    bytes[i] = parts[i] == "?" ? (byte)0x07 : Convert.ToByte(parts[i], 16);
+                }
+                return bytes;
+            }
+
+            // Helper function to check if the signature matches at a given position
+            bool IsMatch(byte[] memory, int position, byte[] sig)
+            {
+                for (int i = 0; i < sig.Length; i++)
+                {
+                    if (sig[i] != 0x07 && memory[position + i] != sig[i])
+                    {
+                        return false;
+                    }
+                }
+                return true;
+            }
+
+            long FindSignatureInChunk(byte[] memory, byte[] sig, int start, int end)
+            {
+                for (int i = start; i < end - sig.Length + 1; i++)
+                {
+                    if (IsMatch(memory, i, sig))
+                    {
+                        return i;
+                    }
+                }
+                return -1;
+            }
+
+            long FindSignature(byte[] memory, byte[] sig)
+            {
+                int chunkSize = memory.Length / Environment.ProcessorCount;
+                long[] results = new long[Environment.ProcessorCount];
+
+                Parallel.For(0, Environment.ProcessorCount, i =>
+                {
+                    int start = i * chunkSize;
+                    int end = (i == Environment.ProcessorCount - 1) ? memory.Length - sig.Length + 1 : (i + 1) * chunkSize;
+                    results[i] = FindSignatureInChunk(memory, sig, start, end);
+                });
+
+                for (int i = 0; i < Environment.ProcessorCount; i++)
+                {
+                    if (results[i] != -1)
+                    {
+                        return results[i];
+                    }
+                }
+
+                return -1;
+            }
+
+            byte[] signatureBytes = ParseSignature(signature);
+            IntPtr processHandle = proc.Handle;
+
+            foreach (ProcessModule module in modules)
+            {
+                IntPtr baseAddress = module.BaseAddress;
+                int moduleSize = module.ModuleMemorySize;
+                byte[] moduleMemory = new byte[moduleSize];
+
+                if (ReadProcessMemory(processHandle, baseAddress, moduleMemory, moduleSize, out _))
+                {
+                    long result = FindSignature(moduleMemory, signatureBytes);
+                    if (result >= 0)
+                    {
+                        return baseAddress.ToInt64() + result;
+                    }
+                }
+            }
+
+            //foreach (ProcessModule module in proc.Modules)
+            //{
+            //    IntPtr baseAddress = module.BaseAddress;
+            //    int moduleSize = module.ModuleMemorySize;
+            //    byte[] moduleMemory = new byte[moduleSize];
+            //    if (ReadProcessMemory(processHandle, baseAddress, moduleMemory, moduleSize, out _))
+            //    {
+            //        long result = FindSignature(moduleMemory, signatureBytes);
+            //        if (result >= 0)
+            //        {
+            //            return baseAddress.ToInt64() + result;
+            //        }
+            //    }
+            //}
+
+            return 0;
+        }
+
         #region DllImport
 
         [DllImport("kernel32.dll")]
         static extern bool ReadProcessMemory(IntPtr hProcess, long lpBaseAddress, [Out] IntPtr lpBuffer, int dwSize, out IntPtr lpNumberOfBytesRead);
+
+        [DllImport("kernel32.dll")]
+        static extern bool ReadProcessMemory(IntPtr hProcess, IntPtr lpBaseAddress, [Out] byte[] lpBuffer, int dwSize, out IntPtr lpNumberOfBytesRead);
 
         [DllImport("kernel32.dll")]
         static extern bool GetBinaryType(string lpApplicationName, out BinaryType lpBinaryType);
