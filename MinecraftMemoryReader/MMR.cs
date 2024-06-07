@@ -253,8 +253,8 @@ namespace MinecraftMemoryReader
         /// Process split into 4 functions; ParseSignature, IsMatch, FindSignatureInChunk, FindSignature
         /// </summary>
         /// <param name="signature">The signature to search for.</param>
-        /// <returns>The memory address where the signature was found.</returns>
-        public static long SigScan(string signature, ProcessModule[] modules)
+        /// <returns>The memory addresses where the signature was found.</returns>
+        public static long[] SigScan(string signature, ProcessModule[] modules, bool stopEarly = false)
         {
             if (proc == null)
             {
@@ -324,6 +324,8 @@ namespace MinecraftMemoryReader
             byte[] signatureBytes = ParseSignature(signature);
             IntPtr processHandle = proc.Handle;
 
+            List<long> addresses = new List<long>();
+
             foreach (ProcessModule module in modules)
             {
                 IntPtr baseAddress = module.BaseAddress;
@@ -335,7 +337,11 @@ namespace MinecraftMemoryReader
                     long result = FindSignature(moduleMemory, signatureBytes);
                     if (result >= 0)
                     {
-                        return baseAddress.ToInt64() + result;
+                        addresses.Add(baseAddress.ToInt64() + result);
+
+                        if (stopEarly)
+                            return addresses.ToArray();
+                        //return baseAddress.ToInt64() + result;
                     }
                 }
             }
@@ -355,7 +361,7 @@ namespace MinecraftMemoryReader
             //    }
             //}
 
-            return 0;
+            return addresses.ToArray();
         }
 
         #region DllImport
